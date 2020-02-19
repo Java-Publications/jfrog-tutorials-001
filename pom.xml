@@ -5,21 +5,14 @@
   <modelVersion>4.0.0</modelVersion>
 
 
-  <parent>
-    <groupId>org.rapidpm</groupId>
-    <artifactId>rapidpm-dependencies</artifactId>
-    <version>04.07.00-alpha-b2</version>
-  </parent>
-
-
   <groupId>org.rapidpm.tutorial.jfrog</groupId>
   <artifactId>jfrog-tutorials-001</artifactId>
   <version>1.0.0-alpha</version>
 
-  <inceptionYear>2017</inceptionYear>
+  <inceptionYear>2020</inceptionYear>
   <organization>
-    <name>Vaadin</name>
-    <url>http://www.vaadin.com</url>
+    <name>Sven Ruppert</name>
+    <url>https://github.com/svenruppert</url>
   </organization>
   <url>https://github.com/Java-Publications/jfrog-tutorials-001</url>
 
@@ -60,12 +53,20 @@
   </licenses>
 
   <properties>
-    <deploy-repo-url>http://jfrog-repo.sven-ruppert.de:8081/artifactory/libs-release</deploy-repo-url>
-    <deploy-repo-snapshots-url>http://jfrog-repo.sven-ruppert.de:8081/artifactory/libs-snapshot</deploy-repo-snapshots-url>
+    <jdk.version>11</jdk.version>
+    <!--technical-->
+    <maven.compiler.source>${jdk.version}</maven.compiler.source> <!--redundant, but IntelliJ doesn't-->
+    <maven.compiler.target>${jdk.version}</maven.compiler.target> <!--use release when importing-->
+    <maven.compiler.testSource>${jdk.version}</maven.compiler.testSource>
+    <maven.compiler.testTarget>${jdk.version}</maven.compiler.testTarget>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <jdk.version>11</jdk.version>
-    <jetty.version>9.4.26.v20200117</jetty.version>
+
+    <junit.jupiter.version>5.6.0</junit.jupiter.version>
+    <junit.platform.version>1.6.0</junit.platform.version>
+    <junit-platform-maven-plugin.version>1.0.0-M5</junit-platform-maven-plugin.version>
+
   </properties>
 
   <repositories>
@@ -75,8 +76,7 @@
       </snapshots>
       <id>central</id>
       <name>libs-release</name>
-      <!--      <url>${deploy-repo-url}</url>-->
-      <url>http://jfrog-repo.sven-ruppert.de:8081/artifactory/libs-release</url>
+      <url>http://localhost:8081/artifactory/libs-release</url>
     </repository>
     <repository>
       <snapshots>
@@ -85,7 +85,7 @@
       </snapshots>
       <id>snapshots</id>
       <name>libs-snapshot</name>
-      <url>http://jfrog-repo.sven-ruppert.de:8081/artifactory/libs-snapshot</url>
+      <url>http://localhost:8081/artifactory/libs-snapshot</url>
     </repository>
   </repositories>
   <pluginRepositories>
@@ -95,8 +95,7 @@
       </snapshots>
       <id>central</id>
       <name>libs-release</name>
-      <url>http://jfrog-repo.sven-ruppert.de:8081/artifactory/libs-release</url>
-      <!--      <url>${deploy-repo-url}</url>-->
+      <url>http://localhost:8081/artifactory/libs-release</url>
     </pluginRepository>
     <pluginRepository>
       <snapshots>
@@ -105,9 +104,24 @@
       </snapshots>
       <id>snapshots</id>
       <name>libs-snapshot</name>
-      <url>http://jfrog-repo.sven-ruppert.de:8081/artifactory/libs-snapshot</url>
+      <url>http://localhost:8081/artifactory/libs-snapshot</url>
     </pluginRepository>
   </pluginRepositories>
+
+  <distributionManagement>
+    <repository>
+      <id>deploy-repo-maven</id>
+      <name>deploy-repo-maven</name>
+      <url>http://localhost:8081/artifactory/libs-release</url>
+    </repository>
+    <snapshotRepository>
+      <id>deploy-repo-maven-snapshots</id>
+      <name>deploy-repo-maven-snapshots</name>
+      <url>http://localhost:8081/artifactory/libs-snapshot</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+
 
   <dependencies>
     <dependency>
@@ -115,20 +129,72 @@
       <artifactId>artifactory-java-client-services</artifactId>
       <version>2.8.6</version>
     </dependency>
-
     <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>testcontainers</artifactId>
-      <version>1.12.5</version>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>2.10.2</version>
+    </dependency>
+
+<!--    TDD-->
+    <dependency>
+      <groupId>org.rapidpm</groupId>
+      <artifactId>rapidpm-functional-reactive</artifactId>
+      <scope>test</scope>
+      <version>01.00.04-RPM</version>
+    </dependency>
+    <!--jUnit5-->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit.jupiter.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>1.12.5</version>
-      <scope>test</scope>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit.jupiter.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-launcher</artifactId>
+      <scope>test</scope>
+      <version>${junit.platform.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-testkit</artifactId>
+      <version>${junit.platform.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- Only required to run tests in an IDE that bundles an older version -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+      <version>${junit.jupiter.version}</version>
+    </dependency>
   </dependencies>
 
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>de.sormuras.junit</groupId>
+        <artifactId>junit-platform-maven-plugin</artifactId>
+        <version>${junit-platform-maven-plugin.version}</version>
+        <extensions>true</extensions> <!-- Necessary to execute it in 'test' phase. -->
+        <configuration>
+          <classNamePatterns>
+            <pattern>^(Test.*|.*Test*.|.+[.$]Test.*|.*Tests?)$</pattern>
+            <pattern>.*TestCase</pattern>
+          </classNamePatterns>
+          <tweaks>
+            <failIfNoTests>false</failIfNoTests>
+          </tweaks>
+          <executor>JAVA</executor>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
